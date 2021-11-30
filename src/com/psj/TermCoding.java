@@ -1,52 +1,60 @@
 package com.psj;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+
 public class TermCoding {
 
-    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
-        int len1 = nums1.length, len2 = nums2.length;
-        int totalLen = len1 + len2;
-        if (totalLen % 2 == 1) {
-            int midIndex = totalLen/2;
-            double median = getKthElement(nums1, nums2, midIndex + 1);
-            return median;
-        } else {
-            int midIndex1 = totalLen / 2 - 1, midIndex2 = totalLen / 2;
-            double median = (getKthElement(nums1, nums2, midIndex1 + 1) + getKthElement(nums1, nums2, midIndex2 + 1)) / 2.0;
-            return median;
-        }
+    static List<String> res = new ArrayList<>();
+    static final int SEG_COUNT = 4;
+
+    public static void main(String[] args) {
+        String s = "25525511135";
+        System.out.println(restoreIpAddresses(s));
     }
 
-    public int getKthElement(int[] nums1, int[] nums2, int k) {
-        int length1 = nums1.length, length2 = nums2.length;
-        int index1 = 0, index2 = 0;
-        int kthElement = 0;
+    public static List<String> restoreIpAddresses(String s) {
+        dfs(s, 0, 0, new ArrayList<>());
+        return res;
+    }
 
-        while (true) {
-            // 边界情况
-            if (index1 == length1) {
-                return nums2[index2 + k - 1];
+    public static void dfs(String s, int count, int index, List<String> sb) {
+        if (count == 3 && isValid(s.substring(index))) {
+            StringBuilder temp = new StringBuilder();
+            for (int i = 0; i < sb.size(); i++) {
+                temp.append(sb.get(i));
             }
-            if (index2 == length2) {
-                return nums1[index1 + k - 1];
-            }
-            if (k == 1) {
-                return Math.min(nums1[index1], nums2[index2]);
-            }
+            temp.append(s.substring(index));
+            res.add(temp.toString());
+        }
 
-            // 正常情况
-            int half = k / 2;
-            int newIndex1 = Math.min(index1 + half - 1, length1 - 1);
-            int newIndex2 = Math.min(index2 + half, length2) - 1;
-
-            if (nums1[newIndex1] > nums2[newIndex2]) {
-                k -= (newIndex2 - index2 + 1);
-                index2 = newIndex2 + 1;
-            } else {
-                k -= (newIndex1 - index1 + 1);
-                index1 = newIndex1 + 1;
+        for (int i = index + 1; i < s.length(); i++) {
+            if (isValid(s.substring(index, i))) {
+                StringBuilder temp = new StringBuilder();
+                temp.append(s, index, i);
+                temp.append(".");
+                sb.add(temp.toString());
+                count++;
+                dfs(s, count, i, sb);
+                count--;
+                sb.remove(sb.size() - 1);
             }
         }
     }
 
-
+    public static boolean isValid(String s){
+        if (s.length() == 0) return false;
+        char[] cs = s.toCharArray();
+        if (cs[0] == '0' && cs.length != 1) return false;
+        int res = 0;
+        for (int i = 0; i < cs.length; i++){
+            res = res * 10 + cs[i] - '0';
+        }
+        if (res >= 0 && res <= 255){
+            return true;
+        }
+        return false;
+    }
 }
